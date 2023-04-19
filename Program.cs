@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using ProjectManagerWebApi.Data;
 using Microsoft.AspNetCore.Mvc;
 using Task = ProjectManagerWebApi.Models.Tasks;
+
+// Azure KeyVault specific
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 
@@ -9,19 +11,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+// Connection string from EF Power Tools
 //builder.Services.AddSqlServer<ProjectTrackerContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 
-//var connString = builder.Configuration.GetConnectionString("AzureConnection");
-
+// Azure KeyVault
 var keyVaultEndpoint = new Uri(builder.Configuration["VaultKey"]);
 var secretClient = new SecretClient(keyVaultEndpoint, new DefaultAzureCredential());
 KeyVaultSecret kvs = secretClient.GetSecret("projecttrackersecret2");
-
 builder.Services.AddDbContext<ProjectTrackerContext>(o => o.UseSqlServer(kvs.Value));
+
+// Standard connection string
+//var connString = builder.Configuration.GetConnectionString("AzureConnection");
 //builder.Services.AddDbContext<ProjectTrackerContext>(o => o.UseSqlServer(connString));
 
-
+// Stored Procs inherit from DbContext
 builder.Services.AddScoped<ProjectTrackerContextProcedures>();
 
 builder.Services.AddCors(options =>
@@ -36,9 +39,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseCors("AllowAll");
-
 }
 
+// For my purpose, I enable Swagger so I can test endpoints
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -66,7 +69,6 @@ app.MapPost("task", async ([FromServices] ProjectTrackerContext db, [FromBody] T
 
 app.MapPut("task", async ([FromServices] ProjectTrackerContext db, [FromBody] Task task) =>
 {
-
     var dbTask = await db.Tasks.FindAsync(task.TaskId);
     if (dbTask == null)
     {
@@ -83,14 +85,12 @@ app.MapPut("task", async ([FromServices] ProjectTrackerContext db, [FromBody] Ta
     return TypedResults.Ok(dbTask);
 });
 
-
 app.MapDelete("task/{id}", async ([FromServices] ProjectTrackerContextProcedures db, int id) =>
 {
     var op = new OutputParameter<int>();
     await db.sp_Delete_TaskAsync(id, op);
     return await db.sp_Select_TaskAsync(id, op);
 });
-
 
 app.MapGet("projects", async ([FromServices] ProjectTrackerContextProcedures db) =>
 {
