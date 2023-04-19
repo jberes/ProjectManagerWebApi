@@ -36,9 +36,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseCors("AllowAll");
-    app.UseSwagger();
-    app.UseSwaggerUI();
+
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // ******************************************************************
 // GET / POST / PUT / DEL for TASKS
