@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen();
 // Azure KeyVault
 var keyVaultEndpoint = new Uri(builder.Configuration["VaultKey"]);
 var secretClient = new SecretClient(keyVaultEndpoint, new DefaultAzureCredential());
-KeyVaultSecret kvs = secretClient.GetSecret("ProjectTracker1-KeyVaultValue");
+KeyVaultSecret kvs = secretClient.GetSecret("ProjectTrackerSecret");
 builder.Services.AddDbContext<ProjectTrackerContext>(o => o.UseSqlServer(kvs.Value));
 
 // Standard connection string
