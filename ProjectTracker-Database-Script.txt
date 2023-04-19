@@ -1,0 +1,414 @@
+CREATE TABLE [dbo].[Projects](
+	[ProjectId] [int] IDENTITY(1,1) NOT NULL,
+	[ProjectName] [varchar](100) NOT NULL,
+	[DateAdded]  AS (getdate()),
+ CONSTRAINT [PK_Projects] PRIMARY KEY CLUSTERED 
+(
+	[ProjectId] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Tasks]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Tasks](
+	[TaskId] [int] IDENTITY(1,1) NOT NULL,
+	[TaskName] [varchar](100) NOT NULL,
+	[DateAdded]  AS (getdate()),
+	[DateUpdated] [date] NOT NULL,
+	[DateDue] [date] NOT NULL,
+	[ProjectId] [int] NOT NULL,
+	[AssignedToEmail] [varchar](100) NOT NULL,
+	[Priority] [int] NOT NULL,
+ CONSTRAINT [PK_Tasks] PRIMARY KEY CLUSTERED 
+(
+	[TaskId] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[vw_Tasks_Projects]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE VIEW [dbo].[vw_Tasks_Projects]
+
+AS
+
+SELECT dbo.Projects.ProjectName, dbo.Tasks.TaskId, dbo.Tasks.TaskName, dbo.Tasks.DateAdded, dbo.Tasks.AssignedToEmail, dbo.Tasks.Priority, dbo.Tasks.DateUpdated, dbo.Tasks.DateDue, dbo.Tasks.ProjectId
+
+FROM  dbo.Projects INNER JOIN
+
+         dbo.Tasks ON dbo.Projects.ProjectId = dbo.Tasks.ProjectId
+
+GO
+SET IDENTITY_INSERT [dbo].[Projects] ON 
+GO
+INSERT [dbo].[Projects] ([ProjectId], [ProjectName]) VALUES (1, N'Project A')
+GO
+INSERT [dbo].[Projects] ([ProjectId], [ProjectName]) VALUES (2, N'Project B')
+GO
+INSERT [dbo].[Projects] ([ProjectId], [ProjectName]) VALUES (3, N'Project C')
+GO
+INSERT [dbo].[Projects] ([ProjectId], [ProjectName]) VALUES (4, N'Project D')
+GO
+INSERT [dbo].[Projects] ([ProjectId], [ProjectName]) VALUES (5, N'Project E')
+GO
+INSERT [dbo].[Projects] ([ProjectId], [ProjectName]) VALUES (6, N'Project J')
+GO
+INSERT [dbo].[Projects] ([ProjectId], [ProjectName]) VALUES (9, N'Project Z')
+GO
+SET IDENTITY_INSERT [dbo].[Projects] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Tasks] ON 
+GO
+INSERT [dbo].[Tasks] ([TaskId], [TaskName], [DateUpdated], [DateDue], [ProjectId], [AssignedToEmail], [Priority]) VALUES (1, N'Task Name One', CAST(N'2022-10-11' AS Date), CAST(N'2023-01-14' AS Date), 1, N'Zdravko', 2)
+GO
+INSERT [dbo].[Tasks] ([TaskId], [TaskName], [DateUpdated], [DateDue], [ProjectId], [AssignedToEmail], [Priority]) VALUES (2, N'Task Name Two', CAST(N'2022-10-11' AS Date), CAST(N'2022-10-11' AS Date), 1, N'George', 1)
+GO
+INSERT [dbo].[Tasks] ([TaskId], [TaskName], [DateUpdated], [DateDue], [ProjectId], [AssignedToEmail], [Priority]) VALUES (3, N'Task Name Three', CAST(N'2022-10-11' AS Date), CAST(N'2022-10-11' AS Date), 1, N'Pablo', 1)
+GO
+SET IDENTITY_INSERT [dbo].[Tasks] OFF
+GO
+ALTER TABLE [dbo].[Projects]  WITH CHECK ADD  CONSTRAINT [FK_Projects_Projects] FOREIGN KEY([ProjectId])
+REFERENCES [dbo].[Projects] ([ProjectId])
+GO
+ALTER TABLE [dbo].[Projects] CHECK CONSTRAINT [FK_Projects_Projects]
+GO
+ALTER TABLE [dbo].[Tasks]  WITH CHECK ADD  CONSTRAINT [FK_Tasks_Projects] FOREIGN KEY([ProjectId])
+REFERENCES [dbo].[Projects] ([ProjectId])
+GO
+ALTER TABLE [dbo].[Tasks] CHECK CONSTRAINT [FK_Tasks_Projects]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Delete_Project]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+ 
+
+CREATE PROCEDURE [dbo].[sp_Delete_Project]
+
+     @ProjectId  int
+
+   
+
+AS
+
+BEGIN
+
+ 
+
+    DELETE FROM Projects
+
+    WHERE [ProjectId] = @ProjectId
+
+ 
+
+END
+
+ 
+
+ 
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Delete_Task]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ 
+
+CREATE PROCEDURE [dbo].[sp_Delete_Task]
+
+     @TaskId  int
+
+   
+
+AS
+
+BEGIN
+
+ 
+
+    DELETE FROM Tasks
+
+    WHERE [TaskId] = @TaskId
+
+ 
+
+END
+
+ 
+
+ 
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Insert_Project]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[sp_Insert_Project]
+
+
+@ProjectName varchar(100)
+
+AS
+
+BEGIN
+       Insert into Projects (ProjectName)
+
+       values(@ProjectName)
+
+       END
+
+       select * From Projects where ProjectId = @@IDENTITY
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Insert_Task]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[sp_Insert_Task]
+
+@TaskName varchar(100),
+
+@DateUpdated date,
+
+@DateDue date,
+
+@ProjectId int,
+
+@AssignedToEmail varchar(100),
+
+@Priority int 
+
+AS
+
+BEGIN
+Insert into Tasks (TaskName,DateUpdated,DateDue,ProjectId,AssignedToEmail,Priority)
+values(@TaskName,@DateUpdated,@DateDue,@ProjectId,@AssignedToEmail,@Priority)
+END
+
+Select * from vw_Tasks_Projects where TaskId=@@IDENTITY
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Select_Project]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+ 
+
+CREATE PROCEDURE [dbo].[sp_Select_Project]
+
+     @ProjectId  int
+
+   
+
+AS
+
+BEGIN
+
+ 
+
+    SELECT * FROM Projects
+
+    WHERE [ProjectId] = @ProjectId;
+
+ 
+
+END
+
+ 
+
+ 
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Select_Projects]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+ 
+
+CREATE PROCEDURE [dbo].[sp_Select_Projects]
+  
+
+AS
+
+BEGIN
+
+ 
+
+    SELECT * FROM Projects Order by ProjectName
+
+
+END
+
+ 
+
+ 
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Select_Task]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ 
+
+CREATE PROCEDURE [dbo].[sp_Select_Task]
+
+     @TaskId  int
+
+   
+
+AS
+
+BEGIN
+
+ 
+
+    SELECT * FROM Tasks
+
+    WHERE [TaskId] = @TaskId;
+
+ 
+
+END
+
+ 
+
+ 
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_SelectAll_ProjectsTasks]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+ 
+
+ 
+
+CREATE PROCEDURE [dbo].[sp_SelectAll_ProjectsTasks]
+
+AS
+
+BEGIN
+
+ 
+
+    SELECT * FROM vw_Tasks_Projects order by vw_Tasks_Projects.DateDue ASC
+
+ 
+
+END
+
+ 
+
+ 
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_SelectAll_Tasks]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ 
+
+CREATE PROCEDURE [dbo].[sp_SelectAll_Tasks]
+
+AS
+
+BEGIN
+
+ 
+
+    SELECT * FROM Tasks
+
+ 
+
+END
+
+ 
+
+ 
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Update_Project]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE PROCEDURE [dbo].[sp_Update_Project]
+@out_error_number INT = 0 OUTPUT,
+@ProjectName varchar(100),
+@ProjectId int
+
+AS
+BEGIN
+BEGIN TRY
+       UPDATE [dbo].Projects SET ProjectName=@ProjectName
+       WHERE ProjectId=@ProjectId
+       Select * from Projects where @ProjectId = @ProjectId
+END TRY
+BEGIN CATCH
+    SELECT @out_error_number=ERROR_NUMBER()
+END CATCH
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Update_Task]    Script Date: 10/11/2022 1:47:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[sp_Update_Task]
+@out_error_number INT = 0 OUTPUT,
+@TaskId int,
+@TaskName varchar(100),
+@DateUpdated date,
+@DateDue date,
+@ProjectId int,
+@AssignedToEmail varchar(100),
+@Priority int
+
+AS
+BEGIN
+BEGIN TRY
+       UPDATE [dbo].Tasks SET TaskName=@TaskName,DateUpdated=@DateUpdated,DateDue=@DateDue,ProjectId=@ProjectId,AssignedToEmail=@AssignedToEmail,Priority=@Priority
+       WHERE TaskId=@TaskId
+
+       Select * from vw_Tasks_Projects where TaskId = @TaskId
+END TRY
+BEGIN CATCH
+    SELECT @out_error_number=ERROR_NUMBER()
+END CATCH
+END
+
+GO
+ALTER DATABASE [ProjectTracker] SET  READ_WRITE 
+GO
