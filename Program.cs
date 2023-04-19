@@ -36,10 +36,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseCors("AllowAll");
-}
+//}
 
 // For my purpose, I enable Swagger so I can test endpoints
 app.UseSwagger();
