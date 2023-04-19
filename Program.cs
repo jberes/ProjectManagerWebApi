@@ -20,6 +20,8 @@ KeyVaultSecret kvs = secretClient.GetSecret("projecttrackersecret2");
 
 builder.Services.AddDbContext<ProjectTrackerContext>(o => o.UseSqlServer(kvs.Value));
 //builder.Services.AddDbContext<ProjectTrackerContext>(o => o.UseSqlServer(connString));
+
+
 builder.Services.AddScoped<ProjectTrackerContextProcedures>();
 
 builder.Services.AddCors(options =>
