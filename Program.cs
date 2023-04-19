@@ -14,6 +14,7 @@ builder.Services.AddSwaggerGen();
 // Connection string from EF Power Tools
 //builder.Services.AddSqlServer<ProjectTrackerContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 
+
 // Azure KeyVault
 var keyVaultEndpoint = new Uri(builder.Configuration["VaultKey"]);
 var secretClient = new SecretClient(keyVaultEndpoint, new DefaultAzureCredential());
