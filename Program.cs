@@ -18,14 +18,14 @@ builder.Services.AddSwaggerGen();
 
 
 // Azure KeyVault
-//var keyVaultEndpoint = new Uri(builder.Configuration["VaultKey"]);
-//var secretClient = new SecretClient(keyVaultEndpoint, new DefaultAzureCredential());
-//KeyVaultSecret kvs = secretClient.GetSecret("projecttracker-secret2024");
-//builder.Services.AddDbContext<ProjectTrackerContext>(o => o.UseSqlServer(kvs.Value));
+var keyVaultEndpoint = new Uri(builder.Configuration["VaultKey"]);
+var secretClient = new SecretClient(keyVaultEndpoint, new DefaultAzureCredential());
+KeyVaultSecret kvs = secretClient.GetSecret("projecttracker-secret2024");
+builder.Services.AddDbContext<ProjectTrackerContext>(o => o.UseSqlServer(kvs.Value));
 
 // Standard connection string
-var connString = builder.Configuration.GetConnectionString("AzureConnection");
-builder.Services.AddDbContext<ProjectTrackerContext>(o => o.UseSqlServer(connString));
+//var connString = builder.Configuration.GetConnectionString("AzureConnection");
+//builder.Services.AddDbContext<ProjectTrackerContext>(o => o.UseSqlServer(connString));
 
 // Stored Procs inherit from DbContext
 builder.Services.AddScoped<ProjectTrackerContextProcedures>();
